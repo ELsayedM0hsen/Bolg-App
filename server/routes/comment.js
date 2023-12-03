@@ -24,12 +24,24 @@ router.post("/create/:postId", verifyToken, async (req, res) => {
     }
 
     const savedComment = await newComment.save();
-    post.comments.push(savedComment._id);
+    post.comment.push(savedComment._id);
     await post.save();
 
     res.status(201).json(savedComment);
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Get all comments for a specific post
+router.get("/post-comments/:postId", async (req, res) => {
+  try {
+    const postId = req.params.postId;
+
+    const comments = await Comment.find({ post: postId });
+
+    res.status(200).json(comments);
+  } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -51,8 +63,7 @@ router.put("/update/:commentId", verifyToken, async (req, res) => {
     }
 
     res.status(200).json(updatedComment);
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -78,8 +89,7 @@ router.delete("/delete/:commentId", verifyToken, async (req, res) => {
     res
       .status(200)
       .json({ message: "Comment deleted", comment: deletedComment });
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

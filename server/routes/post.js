@@ -1,6 +1,7 @@
 import express from "express";
 import { verifyToken } from "../midllware/verifyToken.js";
 import Post from "../models/Post.js";
+import Comment from "../models/Comment.js";
 
 const router = express.Router();
 
@@ -23,10 +24,15 @@ router.post("/create", verifyToken, async (req, res) => {
 
 //Get all posts
 router.get("/", async (req, res) => {
+  const query = req.query
   try {
-    const posts = await Post.find();
+    const searchBar = {
+      title:{$regex:query.search,$options:"i"},
+    }
+    const posts = await Post.find(query.search?searchBar:null);
     res.status(200).json(posts);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -37,6 +43,7 @@ router.get("/user-posts", verifyToken, async (req, res) => {
     const userPosts = await Post.find({ user: req.user.id });
     res.status(200).json(userPosts);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -51,6 +58,7 @@ router.get("/:id", async (req, res) => {
 
     res.status(200).json(post);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -69,6 +77,7 @@ router.put("/:id", verifyToken, async (req, res) => {
 
     res.status(200).json(updatedPost);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -76,7 +85,7 @@ router.put("/:id", verifyToken, async (req, res) => {
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
     const deletedPost = await Post.findByIdAndDelete(req.params.id);
-    // await Comment.deleteMany({postId:req.params.id})
+    await Comment.deleteMany({postId:req.params.id})
 
     if (!deletedPost) {
       return res.status(404).json({ error: "Post not found" });
@@ -84,6 +93,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
 
     res.status(200).json({ message: "Post deleted", post: deletedPost });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
