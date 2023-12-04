@@ -7,17 +7,19 @@ const router = express.Router();
 
 router.post("/create", verifyToken, async (req, res) => {
   try {
-    const { title, desc, img, categories } = req.body;
+    const { title, desc, img, categories, username } = req.body;
     const newPost = await Post.create({
       title,
       desc,
       img,
       categories,
+      username,
       user: req.user.id,
-      //   username: req.user.username,
+      
     });
     res.status(201).json(newPost);
-  } catch (error) {
+  } catch (err) {
+    console.log(err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -38,7 +40,7 @@ router.get("/", async (req, res) => {
 });
 
 // Get all posts for the authenticated user
-router.get("/user-posts", verifyToken, async (req, res) => {
+router.get("/user/:userID", verifyToken, async (req, res) => {
   try {
     const userPosts = await Post.find({ user: req.user.id });
     res.status(200).json(userPosts);

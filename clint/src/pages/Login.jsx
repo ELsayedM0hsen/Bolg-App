@@ -1,13 +1,30 @@
+import axios from "axios";
 import { useState } from "react"
-import { Link } from "react-router-dom";
+import { useCookies } from "react-cookie";
+import { Link, useNavigate } from "react-router-dom";
 
 
 const Login = () => {
     const [email,setEmail] = useState("");
     const [password,setPassword] = useState("");
+    const [_, setCookies] = useCookies(["jwtoken"]);
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        try {
+            const response = await axios.post("http://localhost:8000/api/auth/login",{
+            email,
+            password
+            });
+            setCookies("jwtoken", response.data.token);
+            window.localStorage.setItem("userID", response.data.userID);
+            navigate("/myblogs")
+
+        } catch (error) {
+            console.log(error);
+        }
+
     }
 
 

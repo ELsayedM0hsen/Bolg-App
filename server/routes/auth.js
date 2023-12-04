@@ -44,22 +44,22 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.TOKEN_KEY, {
       expiresIn: "2d",
     });
-    res.cookie("jwtoken", token);
-    res.json({ token, email: user.email });
+    // res.cookie("jwtoken", token);
+    res.json({ token, userID: user.id, email: user.email });
   } catch (err) {
     console.log(err);
   }
 });
 
-router.get("/logout", async (req, res) => {
-  try {
-    res
-      .clearCookie("token", { sameSite: "none", secure: true })
-      .status(200)
-      .send("User logged out successfully!");
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
+// router.get("/logout", async (req, res) => {
+//   try {
+//     res
+//       .clearCookie("token", { sameSite: "none", secure: true })
+//       .status(200)
+//       .send("User logged out successfully!");
+//   } catch (err) {
+//     res.status(500).json(err);
+//   }
+// });
 
 export default router;
